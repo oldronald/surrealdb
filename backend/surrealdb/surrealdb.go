@@ -9,7 +9,8 @@ import (
 	"io"
 	"net/http"
 	"os" // Usamos solo el paquete os para obtener las variables de entorno
-	"surrealdb/backend/config"
+
+	"github.com/oldronald/surrealdb/backend/config"
 )
 
 // Función para obtener el token de SurrealDB

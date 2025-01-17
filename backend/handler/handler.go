@@ -6,10 +6,11 @@ import (
 	"net"
 	"net/http"
 	"strings"
-	"surrealdb/backend/config"
-	"surrealdb/backend/encriptacion"
-	"surrealdb/backend/ratelimiter"
-	"surrealdb/backend/surrealdb"
+
+	"github.com/oldronald/surrealdb/backend/config"
+	"github.com/oldronald/surrealdb/backend/encriptacion"
+	"github.com/oldronald/surrealdb/backend/ratelimiter"
+	"github.com/oldronald/surrealdb/backend/surrealdb"
 )
 
 type Response struct {

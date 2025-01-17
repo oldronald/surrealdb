@@ -5,7 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"surrealdb/backend/handler"
+
+	"github.com/oldronald/surrealdb/backend/handler"
 )
 
 func main() {

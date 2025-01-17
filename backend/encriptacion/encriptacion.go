@@ -9,7 +9,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"surrealdb/backend/config"
+
+	"github.com/oldronald/surrealdb/backend/config"
 )
 
 // Constantes y errores
