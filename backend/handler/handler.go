@@ -22,6 +22,7 @@ type Response struct {
 func MainHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	// Verificar el límite de tasa
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		http.Error(w, "Error obteniendo la dirección IP", http.StatusInternalServerError)
@@ -34,6 +35,7 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Verificar el encabezado Authorization
 	key := r.Header.Get("Authorization")
 	if key == "" {
 		resp := Response{Message: "No se proporcionó ninguna clave"}
@@ -41,14 +43,12 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verificar que la clave comience con "Bearer "
 	if !strings.HasPrefix(key, "Bearer ") {
 		resp := Response{Message: "Formato de clave inválido"}
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
 
-	// Extraer la clave secreta
 	secretKey := strings.TrimPrefix(key, "Bearer ")
 	if secretKey != config.JWTSecret {
 		resp := Response{Message: "Clave inválida"}
@@ -69,45 +69,32 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validar las credenciales (esto es un ejemplo simple, ajusta según tus necesidades)
-	if requestBody.Ns != config.Credentials.Ns || requestBody.Db != config.Credentials.Db || requestBody.User != config.Credentials.User || requestBody.Pass != config.Credentials.Pass {
-		resp := Response{Message: "Credenciales inválidas"}
-		json.NewEncoder(w).Encode(resp)
-		return
-	}
+	// Asignar las credenciales del cuerpo de la solicitud a config.Credentials
+	config.Credentials.Ns = requestBody.Ns
+	config.Credentials.Db = requestBody.Db
+	config.Credentials.User = requestBody.User
+	config.Credentials.Pass = requestBody.Pass
 
-	tokens, err := surrealdb.GetSurrealToken()
+	// Obtener el token de SurrealDB
+	tokens, err := surrealdb.GetSurrealToken(requestBody.Ns, requestBody.Db, requestBody.User, requestBody.Pass)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error al obtener el token: %v", err), http.StatusInternalServerError)
 		return
 	}
 
-	encryptedToken, err := encriptacion.Encrypter(tokens, config.EncryptionKey) // Asegúrate de que `tokens` sea un string
+	// Encriptar el token
+	encryptedToken, err := encriptacion.Encrypter(tokens, config.EncryptionKey)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error al encriptar el token: %v", err), http.StatusInternalServerError)
 		return
 	}
 
+	// Asignar el token encriptado a config.Credentials
 	config.Credentials.Token = encryptedToken
 
-	errcredential := encriptacion.EncryptAllCredentials(&config.Credentials, config.EncryptionKey)
-	if errcredential != nil {
-		fmt.Printf("Error al encriptar las credenciales: %v\n", err)
-		return
-	}
-
-	fmt.Println("Tokenencryted:", encryptedToken)
-
-	dencryptedToken, err := encriptacion.Decrypter(encryptedToken, config.EncryptionKey) // Asegúrate de que `tokens` sea un string
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error al encriptar el token: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	fmt.Println("TokenDencryted:", dencryptedToken)
-
+	// Responder con un mensaje de éxito y las credenciales
 	resp := Response{
-		Message:     "Clave valida",
+		Message:     "Autenticación exitosa",
 		Credentials: config.Credentials,
 	}
 	json.NewEncoder(w).Encode(resp)

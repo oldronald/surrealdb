@@ -113,6 +113,7 @@ func Decrypter(ciphertext string, key []byte) (string, error) {
 	return string(plaintext[:len(plaintext)-paddingSize]), nil
 }
 
+// EncryptAllCredentials encripta todos los campos de las credenciales
 func EncryptAllCredentials(creds *config.SurrealDBCredentials, key []byte) error {
 	var err error
 
@@ -120,12 +121,6 @@ func EncryptAllCredentials(creds *config.SurrealDBCredentials, key []byte) error
 	creds.Host, err = Encrypter(creds.Host, key)
 	if err != nil {
 		return fmt.Errorf("error al encriptar Host: %v", err)
-	}
-
-	// Encriptar el campo Port
-	creds.Port, err = Encrypter(creds.Port, key)
-	if err != nil {
-		return fmt.Errorf("error al encriptar Port: %v", err)
 	}
 
 	// Encriptar el campo User
@@ -140,21 +135,22 @@ func EncryptAllCredentials(creds *config.SurrealDBCredentials, key []byte) error
 		return fmt.Errorf("error al encriptar Pass: %v", err)
 	}
 
-	// Encriptar el campo Protocolo
-	creds.Protocolo, err = Encrypter(creds.Protocolo, key)
-	if err != nil {
-		return fmt.Errorf("error al encriptar Protocolo: %v", err)
-	}
-
-	// Encriptar el campo Protocolo
+	// Encriptar el campo Ns
 	creds.Ns, err = Encrypter(creds.Ns, key)
 	if err != nil {
-		return fmt.Errorf("error al encriptar NS: %v", err)
+		return fmt.Errorf("error al encriptar Ns: %v", err)
 	}
 
+	// Encriptar el campo Db
 	creds.Db, err = Encrypter(creds.Db, key)
 	if err != nil {
-		return fmt.Errorf("error al encriptar DB: %v", err)
+		return fmt.Errorf("error al encriptar Db: %v", err)
+	}
+
+	// Encriptar el campo Token
+	creds.Token, err = Encrypter(creds.Token, key)
+	if err != nil {
+		return fmt.Errorf("error al encriptar Token: %v", err)
 	}
 
 	return nil
