@@ -32,7 +32,7 @@ func GetSurrealToken(ns, db, user, pass string) (string, error) {
 	}
 
 	// Construir la URL
-	url := fmt.Sprintf("%s/signin", config.Credentials.Host) // Usar config.Credentials.Host directamente
+	url := fmt.Sprintf("https://%s/signin", config.Credentials.Host) // Usar config.Credentials.Host directamente
 
 	// Crear la solicitud POST
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
