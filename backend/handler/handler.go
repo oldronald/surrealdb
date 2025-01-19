@@ -89,8 +89,18 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Encriptar el host
+	hostToken, err := encriptacion.Encrypter(config.Credentials.Host, config.EncryptionKey)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error al encriptar el host: %v", err), http.StatusInternalServerError)
+		return
+	}
+
 	// Asignar el token encriptado a config.Credentials
 	config.Credentials.Token = encryptedToken
+
+	// Asignar elhost encriptado a config.Credentials
+	config.Credentials.Host = hostToken
 
 	// Responder con un mensaje de éxito y las credenciales
 	resp := Response{
